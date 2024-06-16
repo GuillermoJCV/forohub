@@ -59,9 +59,7 @@ Tenemos otro problema, la base de datos no se puede conectar de la manera tradic
     - **Problema:** **Si esta IP se llegara a filtrar** ya sea mediante github o por cualquier descuido en general, podemos sufrir un ataque de manera remota.
     - **Solución:** Podemos conectar esta base de datos a un servicio externo de tunneling que nos cifra nuestros datos para mantenerlos seguros.
     - Algunas plataformas que ofrecen estos servicios son: [LocalXpose](https://localxpose.io/) o [Ngrok](https://ngrok.com/); sin embargo, estos dos servicios piden targeta para poder utilizar el servicio con apache o mysql. Por lo que aquí la siguiente solución:
-    - **Solución 2:** La siguiente solución requiere tener bastante cuidado, ya que vamos a exponer nuestra IP Pública, por lo que hay dos opciones: *Crear variables de entorno en el idx/dev.nix y eliminarlo agregarlo al .gitignore (recomendado)* o por el contrario *Poner la información de la conexión directo en el application.properties y agregarlo al gitignore*.
-
-Para configurar las variables de entorno
+    - **Solución 2:** La siguiente solución requiere tener bastante cuidado, ya que vamos a exponer nuestra IP Pública, por lo que hay dos opciones: *Crear variables de entorno en el idx/dev.nix y eliminarlo agregarlo al .gitignore (recomendado)* o por el contrario *Poner la información de la conexión directo en el application.properties y agregarlo al gitignore*. Para configurar las variables de entorno
 
 2. Crear una base de datos en la nube:
     - **Explicación:** Podemos crear una base de datos en la nube utilizando los multiples servicios que la nube nos ofrece; por ejemplo: [Amazon RDS](https://aws.amazon.com/rds/), [Google CLoud](https://cloud.google.com/), [Oracle Cloud](https://www.oracle.com/cloud/), y existen muchos otros.
@@ -90,7 +88,7 @@ Lo que pueden hacer es agregar las dependencias al build.gradle y luego ejecutar
 > Si ya agregaron las dependencias que se encuentran abajo, no las tienen que volver a agregar.
 > Y si están usando otra base de datos, recuerden usar el driver adecuado.
 
-Y agregamos lo siguiente en nuestras dependencias de build.gradle (Si alguien ve esto, y aún no he agregado el pom.xml porque soy muy distraído, por favor avisarme para agregarlo a mi correo memo92975@gmail.com):
+Y agregamos lo siguiente en nuestras dependencias de build.gradle, agregaré la equivalencia a **pom.xml** al final:
 
 ```build.gradle
 dependencies {
@@ -108,11 +106,12 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 }
 ```
-
 > [!NOTE]
 > Yo eliminé flyway porque me da algunos errores al ejecutar el proyecto.
 
-La última dependencia se trata del driver para MySQL; sin embargo, tenemos que agregar el driver que se necesite para la base de datos que utilicemos.
+> [!IMPORTANT]
+> La última dependencia se trata del driver para MySQL.
+> Sin embargo, tenemos que agregar el driver que se necesite para la base de datos que utilicemos.
 
 Y antes de configurar el application.properties necesito configurar la contraseña y nombre de mi base de datos.
 
@@ -137,7 +136,9 @@ En mi caso el usuario es memo entonces escribiría `'memo'@'localhost'`, dejando
 * NO USEN CARACTERES ESPECIALES
 * TIENE QUE SER ALGO SENCILLO
 
-Recuerden que nadie va a poder entrar porque su base de datos igual va a estar en local. Así que tampoco tiene que ser una contraseña super compleja.
+> [!NOTE]
+> Recuerden que nadie va a poder entrar porque su base de datos igual va a estar en local.
+> Así que tampoco tiene que ser una contraseña super compleja.
 
 Ahora tenemos que configurar nuestro dev.nix para agregar las variables de entorno.
 
@@ -155,15 +156,20 @@ Con esto lo eliminaremos este archivo del proyecto en github sin sufrir problema
 
 Ahora tenemos que configurar el dev.nix con las variables de entorno, así que insertamos lo siguiente en el campo env = {}
 ```nix
+env = {
     PUBLIC_IP = "su ip pública";
     PASSWORD = "contraseña";
+}
 ```
 Y su ip pública la pueden obtener usando la siguiente página "[What is my IP address](https://whatismyipaddress.com/)"
 
 Finalmente, podemos configurar nuestro application properties que lo pueden encontrar en [este enlace](src/main/resources/application.properties)
 
-Con todo esto, podremos ejecutar nuestro proyecto; que, por cierto, saltarán un montón de advertencias las cuales son normales, al final deberá decir en qué puerto sale, que no puede ser el puerto 8080, como verán en mi application.properties.
+Con todo esto, podremos ejecutar nuestro proyecto
 
+> [!WARNING]
+> Saltarán un montón de advertencias las cuales son normales, 
+> al final deberá decir en qué puerto sale, que no puede ser el puerto 8080, como verán en mi application.properties.
 
 ### Tecnologías principales
 
@@ -173,7 +179,7 @@ Con todo esto, podremos ejecutar nuestro proyecto; que, por cierto, saltarán un
 
 ### Tecnologías secundarias
 
-* Graddle
+* Graddle / Maven
 * IDX de Google
 
 ### Dependencias
@@ -186,3 +192,67 @@ Con todo esto, podremos ejecutar nuestro proyecto; que, por cierto, saltarán un
 * MySQL Driver
 * Validation
 * Spring Security
+
+
+Dependencias en pom.xml:
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.flywaydb</groupId>
+        <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <scope>development-only</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <scope>annotation-processor</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.platform</groupId>
+        <artifactId>junit-platform-launcher</artifactId>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-j</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+</dependencies>
+
+```

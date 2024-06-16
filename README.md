@@ -29,21 +29,21 @@ El principal reto para este challege no es el challenge; por el contrario, el re
 6. En el archivo dev.nix tenemos que configurar tanto el jdk como las extensiones agregadas
     - Arriba de packages nos va a aparecer la instruccion Add packages y debemos buscar el jdk que necesitamos, por ejemplo, yo necesito la version 17, por lo que voy a usar la 17 de la siguiente manera
     ```nix
-        packages = [
-            pkgs.jdk17
-        ];
+    packages = [
+        pkgs.jdk17
+    ];
     ```
 
     - Ya con esto configuramos el jdk en el workspace y lo que tendriamos que hacer es añadir las extensiones en el apartado extensions 
     ```nix
-        extensions = [
-            "redhat.java"
-            "vscjava.vscode-java-debug"
-            "vscjava.vscode-java-dependency"
-            "vscjava.vscode-java-pack"
-            "vscjava.vscode-java-test"
-            "vscjava.vscode-maven"
-        ];
+    extensions = [
+        "redhat.java"
+        "vscjava.vscode-java-debug"
+        "vscjava.vscode-java-dependency"
+        "vscjava.vscode-java-pack"
+        "vscjava.vscode-java-test"
+        "vscjava.vscode-maven"
+    ];
     ```
     
 7. Una vez terminamos de configurar nuestro dev.nix, solamente debemos dar click en **Rebuild environment**

@@ -2,7 +2,13 @@
 
 Este es el último **challenge** de Alura para Backend donde se aprende a crear una API desde cero generando distintos end points para el CRUD de el foro de forohub de Alura.
 
-El principal reto para este challenge no es en sí el challenge si no más bien hacerlo en IDX (13/06/2024); ya que, al ser un editor de código en la nube y no tener un template para Java, hay que configurar ciertas cosas y no se puede usar una base de datos en local con los métodos traidionales. Por lo que para cualquiera que necesite crear un proyecto de java y los IDE recomendados se les hace muy pesado. Aquí dejaré una serie de instrucciones para programar java en IDX
+
+El principal reto para este challege no es el challenge; por el contrario, el reto es hacerlo en IDX. Ya que al ser un editor de código en la web, hay que solucionar los siguientes problemas
+* Configurar el entorno para que funcione java
+* Configurar una base de datos en local y utilizarla en este proyecto
+* Investigar cómo hacer todo esto ya que estamos 01/06/2024, así que al ser un editor de código relativamente nuevo no hay mucha información aparte de la que nos ofrece la documentación de google.
+* Hacerlo en menos de 15 días (porque el reto de alura termina en un mes y tengo otro proyecto pendiente)
+
 
 ### Configuracion del proyecto
 
@@ -28,7 +34,7 @@ El principal reto para este challenge no es en sí el challenge si no más bien 
         ];
     ```
 
-    _ Ya con esto configuramos el jdk en el workspace y lo que tendriamos que hacer es añadir las extensiones en el apartado extensions 
+    - Ya con esto configuramos el jdk en el workspace y lo que tendriamos que hacer es añadir las extensiones en el apartado extensions 
     ```nix
         extensions = [
             "redhat.java"
@@ -52,7 +58,7 @@ Tenemos otro problema, la base de datos no se puede conectar de la manera tradic
     - **Explicación:** Como no podemos usar el localhost desde idx ya que se ejecuta desde internet. Tenemos que utilizar nuestra IP pública y puerto para poder conectarnos a la base de datos en IDX, de esta manera podemos conectar nuestro localhost a nuestro proyecto. 
     - **Problema:** **Si esta IP se llegara a filtrar** ya sea mediante github o por cualquier descuido en general, podemos sufrir un ataque de manera remota.
     - **Solución:** Podemos conectar esta base de datos a un servicio externo de tunneling que nos cifra nuestros datos para mantenerlos seguros.
-    - Algunas plataformas que ofrecen estos servicios son: [LocalXpose](https://localxpose.io/) o [Ngrok](https://ngrok.com/); sin embargo, estos dos servicios piden targeta para poder utilizar el servicio. Por lo que aquí la siguiente solución:
+    - Algunas plataformas que ofrecen estos servicios son: [LocalXpose](https://localxpose.io/) o [Ngrok](https://ngrok.com/); sin embargo, estos dos servicios piden targeta para poder utilizar el servicio con apache o mysql. Por lo que aquí la siguiente solución:
     - **Solución 2:** La siguiente solución requiere tener bastante cuidado, ya que vamos a exponer nuestra IP Pública, por lo que hay dos opciones: *Crear variables de entorno en el idx/dev.nix y eliminarlo agregarlo al .gitignore (recomendado)* o por el contrario *Poner la información de la conexión directo en el application.properties y agregarlo al gitignore*.
 
 Para configurar las variables de entorno
@@ -102,9 +108,61 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 }
 ```
+
+> [!NOTE]
+> Yo eliminé flyway porque me da algunos errores al ejecutar el proyecto.
+
 La última dependencia se trata del driver para MySQL; sin embargo, tenemos que agregar el driver que se necesite para la base de datos que utilicemos.
 
 Y antes de configurar el application.properties necesito configurar la contraseña y nombre de mi base de datos.
+
+Por lo que entramos al Shell de Xampp y ejecutamos los siguientes comandos
+
+* Iniciamos sesión
+```bash
+mysql -u root -p
+
+```
+
+* Creamos la base de datos de forohub.
+* Creamos un usuario y le damos una contraseña para entrar en esta.
+```sql
+CREATE DATABASE forohub;
+
+CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';
+FLUSH PRIVILEGES;
+```
+En mi caso el usuario es memo entonces escribiría `'memo'@'localhost'`, dejando el localhost intacto, y la password pueden usar la que quieran siempre y cuando:
+* NO USEN CARACTERES ESPECIALES
+* TIENE QUE SER ALGO SENCILLO
+
+Recuerden que nadie va a poder entrar porque su base de datos igual va a estar en local. Así que tampoco tiene que ser una contraseña super compleja.
+
+Ahora tenemos que configurar nuestro dev.nix para agregar las variables de entorno.
+
+Pero, si ya hicieron push de dev.nix recuerden eliminarlo haciendo lo siguiente
+* Agregamos .idx/dev.nix al .gitignore
+* Ejecutamos los siguientes comandos en la terminal
+
+```bash
+git rm --cached .idx/dev.nix
+git add .idx/dev.nix
+git commit -m "Elimina el archivo dev.nix del proyecto"
+git push origin main
+```
+Con esto lo eliminaremos este archivo del proyecto en github sin sufrir problemas en local.
+
+Ahora tenemos que configurar el dev.nix con las variables de entorno, así que insertamos lo siguiente en el campo env = {}
+```nix
+    PUBLIC_IP = "su ip pública";
+    PASSWORD = "contraseña";
+```
+Y su ip pública la pueden obtener usando la siguiente página "[What is my IP address](https://whatismyipaddress.com/)"
+
+Finalmente, podemos configurar nuestro application properties que lo pueden encontrar en [este enlace](src/main/resources/application.properties)
+
+Con todo esto, podremos ejecutar nuestro proyecto; que, por cierto, saltarán un montón de advertencias las cuales son normales, al final deberá decir en qué puerto sale, que no puede ser el puerto 8080, como verán en mi application.properties.
 
 
 ### Tecnologías principales

@@ -107,7 +107,7 @@ dependencies {
 }
 ```
 > [!NOTE]
-> Yo eliminé flyway porque me da algunos errores al ejecutar el proyecto.
+> Si les da error al iniciar el proyecto, posiblemente es porque la configuración de flyway no es correcta
 
 > [!IMPORTANT]
 > La última dependencia se trata del driver para MySQL.
